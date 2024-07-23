@@ -10,7 +10,7 @@ productRouter.post(
   "/",
   userAuth,
   policy_check("create", "Product"),
-  upload.single("image"),
+  upload.array("images"),
   ProductController.create
 );
 productRouter.get("/", ProductController.getAll);
@@ -19,7 +19,7 @@ productRouter.put(
   "/:id",
   userAuth,
   policy_check("update", "Product"),
-  upload.single("image"),
+  upload.array("images"),
   ProductController.update
 );
 productRouter.delete(

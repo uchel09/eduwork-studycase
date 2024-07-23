@@ -1,13 +1,15 @@
 import mongoose from "mongoose";
 
-const deliveryAddressSchema = mongoose.Schema(
-  {
-    name: {
-      type: String,
-      required: [true, "nama tidak boleh kosong"],
-      maxLength: [255, "panjang maksimal nama alamat adalah 255 karakter"],
-    },
-
+const invoiceSchema = mongoose.Schema({
+  sub_total: {
+    type: Number,
+    required: [true, "sub total tidak boleh kosong"],
+  },
+  delivery_fee: {
+    type: Number,
+    required: [true, "delivery fee tidak boleh kosong"],
+  },
+  delivery_address: {
     kelurahan: {
       type: String,
       required: [true, "kelurahan tidak boleh kosong"],
@@ -35,23 +37,25 @@ const deliveryAddressSchema = mongoose.Schema(
     },
     phone_number: {
       type: String,
-      Required: true,
-      maxLength: [
-        20,
-        "Panjang maximal no hp tidak boleh lebih dari 20 karakter",
-      ],
-    },
-    userId: {
-      type: mongoose.Types.ObjectId,
-      ref: "Users",
     },
   },
-  { timestamps: true }
-);
+  total: {
+    type: Number,
+    required: [true, "total tidak boleh kosong"],
+  },
+  payment_status: {
+    type: String,
+    enum: ["waiting payment", "paid"],
+  },
+  user: {
+    type: mongoose.Types.ObjectId,
+    ref: "Users",
+  },
+  order: {
+    type: mongoose.Types.ObjectId,
+    ref: "Order",
+  },
+});
 
-const deliveryAddressModel = mongoose.model(
-  "deliveryAddrress",
-  deliveryAddressSchema
-);
-
-export default deliveryAddressModel;
+const invoiceModel = mongoose.model("Invoice", invoiceSchema);
+export default invoiceModel;

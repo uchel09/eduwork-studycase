@@ -2,8 +2,9 @@ import { ResponseError } from "../middlewares/responseError.js";
 import deliveryAddressModel from "../models/deliveryAddressModel.js";
 
 class deliveryService {
-  static async getAllDeliveryAddresses() {
-    const deliveryAddress = await deliveryAddressModel.find();
+  static async getAllDeliveryAddresses(user) {
+    const deliveryAddress = await deliveryAddressModel.find({ userId: user });
+
     return deliveryAddress;
   }
 
@@ -16,13 +17,22 @@ class deliveryService {
   }
 
   static async createDeliveryAddress(address, userId) {
-    let { name, kelurahan, kecamatan, kabupaten, provinsi, detail } = address;
-    const newDeliveryAddress = new deliveryAddressModel({
+    let {
       name,
       kelurahan,
       kecamatan,
       kabupaten,
       provinsi,
+      detail,
+      phone_number,
+    } = address;
+    const newDeliveryAddress = new deliveryAddressModel({
+      name,
+      phone_number,
+      provinsi,
+      kabupaten,
+      kecamatan,
+      kelurahan,
       detail,
       userId,
     });
@@ -33,7 +43,7 @@ class deliveryService {
     return newDeliveryAddress;
   }
 
-  static async updateDeliveryAddress(id, deliveryAddressUpdate,userId) {
+  static async updateDeliveryAddress(id, deliveryAddressUpdate, userId) {
     const { name, kelurahan, kecamatan, kabupaten, provinsi, detail } =
       deliveryAddressUpdate;
     const updatedDeliveryAddress = await deliveryAddressModel.findByIdAndUpdate(
@@ -45,7 +55,7 @@ class deliveryService {
         kabupaten,
         provinsi,
         detail,
-        userId
+        userId,
       },
       {
         new: true,
@@ -58,14 +68,14 @@ class deliveryService {
     return updatedDeliveryAddress;
   }
 
-    static async deleteDeliveryAddress(id) {
-      const deliveryAddress = await deliveryAddressModel.findByIdAndDelete(id);
-      if (!deliveryAddress) {
-        throw new ResponseError(404, "not found");
-      }
-
-      return deliveryAddress;
+  static async deleteDeliveryAddress(id) {
+    const deliveryAddress = await deliveryAddressModel.findByIdAndDelete(id);
+    if (!deliveryAddress) {
+      throw new ResponseError(404, "not found");
     }
+
+    return deliveryAddress;
+  }
 }
 
 export default deliveryService;

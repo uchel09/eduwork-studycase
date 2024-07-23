@@ -8,4 +8,4 @@ export const authRouter = express.Router();
 authRouter.post("/register", authCtrl.register);
 authRouter.post("/login", authCtrl.login);
 authRouter.get("/refresh-token", authCtrl.generateNewAccessToken);
-authRouter.post("/logout", authCtrl.logout);
+authRouter.get("/logout", authCtrl.logout);

@@ -7,10 +7,10 @@ class AuthController {
 
       res.status(201).json({
         success: true,
+        message: "Register success",
         _id: user._id,
       });
     } catch (error) {
-      console.log(error);
       next(error);
     }
   }
@@ -26,6 +26,8 @@ class AuthController {
       });
       res.status(200).json({
         accessToken: response.accessToken,
+        user: response.user,
+        message: "Login Success",
       });
     } catch (error) {
       next(error);
@@ -33,13 +35,13 @@ class AuthController {
   }
 
   static async generateNewAccessToken(req, res, next) {
-
     try {
-      const accessToken = await AuthService.generateAccessToken(
+      const { accessToken, user } = await AuthService.generateAccessToken(
         req.cookies.refreshToken
       );
       res.status(200).json({
         accessToken,
+        user,
       });
     } catch (error) {
       console.log(error);

@@ -7,7 +7,7 @@ class ProductController {
       res.status(200).json({
         length: categories.length,
         success: true,
-        data: categories,
+         categories,
       });
     } catch (error) {
       next(error);
@@ -20,7 +20,7 @@ class ProductController {
       const category = await categoryService.getCategoryById(id);
       res.status(200).json({
         success: true,
-        data: category,
+        category,
       });
     } catch (error) {
       next(error);

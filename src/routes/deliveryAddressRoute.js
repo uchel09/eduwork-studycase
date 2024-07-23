@@ -12,7 +12,7 @@ DeliveryAddressRoute.post(
   policy_check("create", "DeliveryAddress"),
   DeliveryAddressCtrl.create
 );
-DeliveryAddressRoute.get("/", DeliveryAddressCtrl.getAll);
+DeliveryAddressRoute.get("/",userAuth, DeliveryAddressCtrl.getAll);
 DeliveryAddressRoute.get("/:id", DeliveryAddressCtrl.getById);
 DeliveryAddressRoute.put(
   "/:id",

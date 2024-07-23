@@ -5,7 +5,7 @@ export const errorMiddleware = (error, req, res, next) => {
   console.error(error.stack);
 
   if (res.headersSent) {
-    // agar tidak double
+    // agar tidak dobol
     return next(error);
   }
 
@@ -18,6 +18,7 @@ export const errorMiddleware = (error, req, res, next) => {
   } else if (error.code && error.code === 11000) {
     res.status(400).json({
       errors: "Duplicate key",
+      name: error.message,
       message: `${Object.keys(error.keyValue)[0]} already exists`,
       success: false,
     });

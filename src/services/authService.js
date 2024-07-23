@@ -6,22 +6,18 @@ import bcrypt from "bcrypt";
 
 class AuthService {
   static async registerUser(userData) {
-    const { email, password, fullname, role } = userData;
+    const { email, password, fullname } = userData;
 
     // Validasi email dan role
-    const existingUser = await userModel.findOne({ email, role });
+    const existingUser = await userModel.findOne({ email });
     if (existingUser) {
-      throw new ResponseError(
-        400,
-        `${email} sudah digunakan untuk peran ${role}`
-      );
+      throw new ResponseError(400, `${email} already exist`);
     }
 
     const newUser = new userModel({
       email,
       password,
       fullname,
-      role,
     });
 
     await newUser.save();
@@ -52,7 +48,7 @@ class AuthService {
 
     const refreshToken = await JwtUtils.createRefreshToken({ _id: user._id });
 
-    return { accessToken, refreshToken };
+    return { accessToken, refreshToken,user };
   }
 
   //============= Generate access token for request ===============
@@ -66,7 +62,7 @@ class AuthService {
       process.env.REFRESH_TOKEN_SECRET
     );
 
-console.log(decoded._id)
+
     const user = await userModel
       .findById(decoded._id)
       .select("-password -createdAt -updatedAt");
@@ -76,8 +72,8 @@ console.log(decoded._id)
     }
 
     const accessToken = await JwtUtils.createAccessToken({ user });
-    console.log(accessToken);
-    return accessToken;
+
+    return { accessToken, user };
   }
 }
 

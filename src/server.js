@@ -43,7 +43,7 @@ app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", allowedOrigins);
   res.setHeader("Access-Control-Allow-Methods", "*");
   res.setHeader("Access-Control-Allow-Headers", "*");
-  res.header("Referrer-Policy", "no-referrer-when-downgrade");
+  // res.header("Referrer-Policy", "no-referrer-when-downgrade");
 
   next();
 });

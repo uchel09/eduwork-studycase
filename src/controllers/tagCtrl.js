@@ -2,13 +2,12 @@ import TagService from "../services/tagService.js";
 
 class ProductController {
   static async getAll(req, res, next) {
-    console.log(res.locals.user)
     try {
       const tags = await TagService.getAllTags();
       res.status(200).json({
         length: tags.length,
         success: true,
-        data: tags,
+        tags,
       });
     } catch (error) {
       next(error);
@@ -21,7 +20,7 @@ class ProductController {
       const tag = await TagService.getTagById(id);
       res.status(200).json({
         success: true,
-        data: tag,
+        tag,
       });
     } catch (error) {
       next(error);

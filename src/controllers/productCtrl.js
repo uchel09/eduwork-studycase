@@ -1,16 +1,38 @@
 import ProductService from "../services/productService.js";
-import { deleteImage } from "../utils/multer.js";
+import { deleteImages } from "../utils/multer.js";
 
 class ProductController {
   static async getAll(req, res, next) {
     try {
       const products = await ProductService.getAllProducts(req.query);
+
+      console.log(`
+  =======================================
+  =======================================
+  
+  PRODUCT IN CONTROLLER
+  ${products.data}
+  =======================================
+  =======================================
+  =======================================
+  `);
+      if (products.data.length === 0) {
+        return res.status(200).json({
+          totalPages: 0,
+          skip: products.skip,
+          limit: products.limit,
+          status: true,
+          products: [],
+          message: "No products found",
+        });
+      }
+
       res.status(200).json({
-        total: products.total,
+        totalPages: Math.ceil(products.total / products.limit),
         skip: products.skip,
         limit: products.limit,
         status: true,
-        data: products.data,
+        products: products.data,
       });
     } catch (error) {
       next(error);
@@ -23,7 +45,7 @@ class ProductController {
       const product = await ProductService.getProductById(id);
       res.status(200).json({
         status: true,
-        data: product,
+        product,
       });
     } catch (error) {
       next(error);
@@ -31,31 +53,49 @@ class ProductController {
   }
 
   static async create(req, res, next) {
-    const imageUrl = req.file ? req.file.filename : null;
+    let images = [];
+    if (req.files) {
+      // Iterasi melalui array file yang diunggah dan buat objek dengan properti image_url untuk setiap file
+      req.files.map((file) => {
+        images.push({
+          image_url: `http://localhost:8000/public/${file.filename}`,
+        });
+      });
+    }
+
     try {
-      const product = await ProductService.createProduct(req.body, imageUrl);
+      const product = await ProductService.createProduct(req.body, images);
       res.status(201).json({
-        status: true,
-        _id: product,
+        success: true,
+        message: "create product success",
+        product,
       });
     } catch (error) {
-      deleteImage(imageUrl);
+      deleteImages(images);
       next(error);
     }
   }
 
   static async update(req, res, next) {
-    const imageUrl = req.file ? req.file.filename : null;
+    let images = [];
+    if (req.files) {
+      // Iterasi melalui array file yang diunggah dan buat objek dengan properti image_url untuk setiap file
+      req.files.map((file) => {
+        images.push({
+          image_url: `http://localhost:8000/public/${file.filename}`,
+        });
+      });
+    }
     try {
       const { id } = req.params;
       const updateProduct = req.body;
       const updatedProduct = await ProductService.updateProduct(
         id,
         updateProduct,
-        imageUrl
+        images
       );
-      if (imageUrl) {
-        deleteImage(updatedProduct.oldImageUrl);
+      if (images.length > 0) {
+        deleteImages(updatedProduct.oldImages);
       }
       res.status(200).json({
         status: true,
@@ -63,9 +103,9 @@ class ProductController {
         message: "update success",
       });
     } catch (error) {
-      if (imageUrl) {
-        console.log(imageUrl);
-        deleteImage(imageUrl);
+      if (images) {
+        console.log(images);
+        deleteImages(images);
       }
       next(error);
     }
@@ -75,7 +115,7 @@ class ProductController {
     try {
       const { id } = req.params;
       const product = await ProductService.deleteProduct(id);
-      deleteImage(product.image_url);
+      deleteImages(product.images);
       res.status(200).json({ message: "Product deleted", _id: product._id });
     } catch (error) {
       next(error);

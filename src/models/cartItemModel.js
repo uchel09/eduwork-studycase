@@ -12,6 +12,8 @@ const cartItemSchema = mongoose.Schema(
       required: [true, "quantity tidak boleh kosong"],
       min: [1, "minimal quantity 1"],
     },
+    color: { type: String },
+    size: { type: String },
     price: {
       type: Number,
       default: 0,

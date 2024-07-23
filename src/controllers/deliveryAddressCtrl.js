@@ -2,14 +2,14 @@ import deliveryAddressService from "../services/deliveryAddressService.js";
 
 class ProductController {
   static async getAll(req, res, next) {
-    console.log(res.locals.user);
+
     try {
       const deliveryAddresses =
-        await deliveryAddressService.getAllDeliveryAddresses();
+        await deliveryAddressService.getAllDeliveryAddresses(res.locals.user._id);
       res.status(200).json({
         length: deliveryAddresses.length,
         success: true,
-        data: deliveryAddresses,
+        addresses: deliveryAddresses,
       });
     } catch (error) {
       next(error);

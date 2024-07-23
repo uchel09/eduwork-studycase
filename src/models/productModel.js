@@ -17,9 +17,13 @@ const productSchema = mongoose.Schema(
       required: [true, "price tidak boleh kosong"],
       max: 10000000,
     },
-    image_url: {
-      type: String,
-    },
+
+    // image_url:{
+    //   type:[public_id:String, image_url:String]
+    // } jika pakai cloudinary
+    images: [{ image_url: String }],
+    colors: [String],
+    sizes: [String],
     category: {
       type: mongoose.Types.ObjectId,
       ref: "Categories",

@@ -16,6 +16,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 export const upload = multer({ storage });
+//delete single image
 export const deleteImage = (imagePath) => {
   if (imagePath) {
     const filePath = path.join(
@@ -33,5 +34,12 @@ export const deleteImage = (imagePath) => {
         console.log(`Successfully deleted image at: ${filePath}`);
       }
     });
+  }
+};
+
+//delete array images
+export const deleteImages = (images) => {
+  if (images && Array.isArray(images)) {
+    images.forEach((item) => deleteImage(item.image_url));
   }
 };

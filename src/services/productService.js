@@ -6,28 +6,20 @@ import { deleteImage } from "../utils/multer.js";
 
 class ProductService {
   static async getAllProducts(query) {
-    let {
-      skip = 0,
-      limit = 10,
-      category = [],
-      tags = [],
-      q = "",
-      sort = "",
-    } = query;
+    let { skip = 0, limit = 5, category = [], tags = [], q = "" } = query;
+    skip = parseInt(skip, 10);
+    limit = parseInt(limit, 10);
 
-    skip = parseInt(skip);
-    limit = parseInt(limit);
+    console.log(
+      `Parameters received - Skip: ${isNaN(limit)}, Limit: ${isNaN(skip)}`
+    );
 
-    // Build the search query
     const searchQuery = {};
     if (q) {
-      searchQuery.$or = [
-        { name: { $regex: q, $options: "i" } },
-        // { description: { $regex: q, $options: "i" } },
-      ];
+      searchQuery.$or = [{ name: { $regex: q, $options: "i" } }];
     }
 
-    if (category.length > 0) {
+    if (category && category.length > 0) {
       const categoryDocs = await Promise.all(
         category.map(async (catName) => {
           return categoryModel.findOne({
@@ -52,32 +44,23 @@ class ProductService {
         })
       );
       const validTagDocs = tagDocs.filter((tagDoc) => tagDoc !== null);
-      console.log(validTagDocs)
+
       if (validTagDocs.length > 0) {
         searchQuery.tags = { $in: validTagDocs.map((tag) => tag._id) };
       }
     }
 
-    // Check if searchQuery is empty
     const isSearchQueryEmpty = Object.keys(searchQuery).length === 0;
-    console.log(isSearchQueryEmpty);
-    // Build the sort query
-    const sortQuery = {};
-    if (sort) {
-      const sortFields = sort.split(",");
-      sortFields.forEach((field) => {
-        const [key, order] = field.split(":");
-        sortQuery[key] = order === "desc" ? -1 : 1;
-      });
-    }
+    console.log("Search Query:", searchQuery);
 
     const products = await productModel
       .find(isSearchQueryEmpty ? {} : searchQuery)
       .skip(skip * limit)
       .limit(limit)
-      .sort(sortQuery)
+      .sort("-updatedAt")
       .populate({ path: "category", select: "-createdAt -updatedAt" })
       .populate({ path: "tags", select: "-createdAt -updatedAt" });
+    console.log("Products found:", products);
 
     const totalProducts = await productModel.countDocuments(
       isSearchQueryEmpty ? {} : searchQuery
@@ -87,10 +70,9 @@ class ProductService {
       total: totalProducts,
       limit,
       skip,
-      data: products,
+      data:products,
     };
   }
-
   static async getProductById(id) {
     const product = await productModel
       .findById(id)
@@ -103,13 +85,13 @@ class ProductService {
     return product;
   }
 
-  static async createProduct(product, imageUrl) {
-    const image_url = `http://localhost:8000/public/${imageUrl}`;
-
+  static async createProduct(product, images) {
     let {
       name,
       description,
       price = 0,
+      colors,
+      sizes,
       category: categoryName,
       tags: tagNames,
     } = product;
@@ -152,7 +134,9 @@ class ProductService {
       name,
       description,
       price,
-      image_url,
+      images,
+      colors,
+      sizes,
       category: category ? category._id : undefined,
       tags: tags.map((tag) => tag._id),
     });
@@ -163,13 +147,13 @@ class ProductService {
   }
 
   //==========UPDATE PRODUCT==============
-  static async updateProduct(id, updateProduct, imageUrl) {
-    const image_url = `http://localhost:8000/public/${imageUrl}`;
-
+  static async updateProduct(id, updateProduct, images) {
     const {
       name,
       description,
       price,
+      colors,
+      sizes,
       category: categoryName,
       tag: tagNames,
     } = updateProduct;
@@ -210,9 +194,9 @@ class ProductService {
     if (!product) {
       throw new ResponseError(404, "not found");
     }
-    const oldImageUrl = product.image_url;
-    if (imageUrl) {
-      product.image_url = image_url;
+    const oldImages = product.images;
+    if (images) {
+      product.images = images;
     }
 
     if (price) {
@@ -227,8 +211,14 @@ class ProductService {
       product.tags = tags.map((tag) => tag._id);
     }
 
+    if (colors?.length > 0) {
+      product.colors = colors;
+    }
+    if (sizes?.length > 0) {
+      product.sizes = sizes;
+    }
     await product.save();
-    return { id, oldImageUrl };
+    return { id, oldImages };
   }
 
   //==========DELETE PRODUCT==============

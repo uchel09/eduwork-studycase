@@ -7,8 +7,8 @@ export const categoryRouter = express.Router();
 
 categoryRouter.post(
   "/",
-  userAuth,
-  policy_check("create", "Category"),
+  // userAuth,
+  // policy_check("create", "Category"),
   categoryCtrl.create
 );
 categoryRouter.get("/", categoryCtrl.getAll);
