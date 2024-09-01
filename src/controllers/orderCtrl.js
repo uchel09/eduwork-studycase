@@ -14,9 +14,20 @@ class OrderController {
   }
   static async getAllOrder(req, res, next) {
     try {
-      const orders = await OrderService.getAllOrder();
+      const orders = await OrderService.getAllOrders();
       res.status(200).json({
         length: orders.length,
+        success: true,
+        orders,
+      });
+    } catch (error) {
+      next(error);
+    }
+  }
+  static async getOrderByUser(req, res, next) {
+    try {
+      const orders = await OrderService.getOrdersByUser(res.locals.user);
+      res.status(200).json({
         success: true,
         orders,
       });

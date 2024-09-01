@@ -6,4 +6,5 @@ export const orderRouter = express.Router();
 
 orderRouter.post("/", userAuth, orderCtrl.create);
 orderRouter.get("/", userAuth, orderCtrl.getAllOrder);
+orderRouter.get("/user", userAuth, orderCtrl.getOrderByUser);
 orderRouter.get("/invoice/:id", userAuth, orderCtrl.getInvoice);

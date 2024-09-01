@@ -1,32 +1,11 @@
+import { query } from "express";
 import ProductService from "../services/productService.js";
 import { deleteImages } from "../utils/multer.js";
 
 class ProductController {
   static async getAll(req, res, next) {
     try {
-      const products = await ProductService.getAllProducts(req.query);
-
-      console.log(`
-  =======================================
-  =======================================
-  
-  PRODUCT IN CONTROLLER
-  ${products.data}
-  =======================================
-  =======================================
-  =======================================
-  `);
-      if (products.data.length === 0) {
-        return res.status(200).json({
-          totalPages: 0,
-          skip: products.skip,
-          limit: products.limit,
-          status: true,
-          products: [],
-          message: "No products found",
-        });
-      }
-
+      const products = await ProductService.getAllProducts(req?.query);
       res.status(200).json({
         totalPages: Math.ceil(products.total / products.limit),
         skip: products.skip,

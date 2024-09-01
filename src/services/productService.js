@@ -6,13 +6,7 @@ import { deleteImage } from "../utils/multer.js";
 
 class ProductService {
   static async getAllProducts(query) {
-    let { skip = 0, limit = 5, category = [], tags = [], q = "" } = query;
-    skip = parseInt(skip, 10);
-    limit = parseInt(limit, 10);
-
-    console.log(
-      `Parameters received - Skip: ${isNaN(limit)}, Limit: ${isNaN(skip)}`
-    );
+    const { skip, limit, category, tags, q } = query;
 
     const searchQuery = {};
     if (q) {
@@ -35,7 +29,7 @@ class ProductService {
       }
     }
 
-    if (tags.length > 0) {
+    if (tags && tags.length > 0) {
       const tagDocs = await Promise.all(
         tags.map(async (tagName) => {
           return tagModel.findOne({
@@ -51,16 +45,13 @@ class ProductService {
     }
 
     const isSearchQueryEmpty = Object.keys(searchQuery).length === 0;
-    console.log("Search Query:", searchQuery);
 
     const products = await productModel
       .find(isSearchQueryEmpty ? {} : searchQuery)
-      .skip(skip * limit)
-      .limit(limit)
-      .sort("-updatedAt")
       .populate({ path: "category", select: "-createdAt -updatedAt" })
-      .populate({ path: "tags", select: "-createdAt -updatedAt" });
-    console.log("Products found:", products);
+      .populate({ path: "tags", select: "-createdAt -updatedAt" })
+      .skip(skip)
+      .limit(limit);
 
     const totalProducts = await productModel.countDocuments(
       isSearchQueryEmpty ? {} : searchQuery
@@ -70,7 +61,7 @@ class ProductService {
       total: totalProducts,
       limit,
       skip,
-      data:products,
+      data: products,
     };
   }
   static async getProductById(id) {

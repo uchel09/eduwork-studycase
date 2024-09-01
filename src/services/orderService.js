@@ -89,9 +89,13 @@ class OrderService {
     return order;
   }
 
-  static async getAllOrder() {
+  static async getAllOrders() {
     const order = await orderModel.find().populate("order_items");
     return order;
+  }
+  static async getOrdersByUser(userId){
+      const order = await orderModel.find({user:userId}).populate("order_items");
+      return order;
   }
   static async getInvoice(orderId) {
     const invoice = await invoiceModel
